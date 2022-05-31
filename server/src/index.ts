@@ -9,18 +9,49 @@ import { PostResolver } from "./resolvers/post";
 import "reflect-metadata";
 import { UserResolver } from "./resolvers/user";
 
+import Redis from "ioredis";
+import session from "express-session";
+import connectRedis from "connect-redis";
+import { MyContext } from "./types";
+
 const main = async () => {
   const orm = await MikroORM.init(microConfig);
   await orm.getMigrator().up();
 
   const app = express();
 
+  const RedisStore = connectRedis(session);
+  //const redisClient = redis.createClient({ legacyMode: true });
+  const redisClient = new Redis("redis://default:redispw@localhost:49153");
+
+  redisClient.on("connect", () => console.log("Connected to Redis!"));
+  redisClient.on("error", (err: Error) =>
+    console.log("Redis Client Error", err)
+  );
+  // redisClient.connect();
+
+  app.use(
+    session({
+      name: "qid",
+      store: new RedisStore({ client: redisClient as any, disableTouch: true }),
+      cookie: {
+        maxAge: 1000 * 60 * 60 * 24 * 365 * 10, // 10 years
+        httpOnly: true,
+        secure: __prod__, // only set cookie on https
+        sameSite: "lax", // can be used in cross-origin requests
+      },
+      saveUninitialized: false,
+      secret: "adohiondabpoqwqwyih",
+      resave: false,
+    })
+  );
+
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: () => ({ em: orm.em }),
+    context: ({ req, res }): MyContext => ({ em: orm.em, req, res }),
   });
 
   apolloServer.applyMiddleware({ app });
