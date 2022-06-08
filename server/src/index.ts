@@ -24,14 +24,14 @@ const main = async () => {
   const app = express();
 
   const RedisStore = connectRedis(session);
-  //const redisClient = redis.createClient({ legacyMode: true });
+
   const redisClient = new Redis("redis://default:redispw@localhost:49153");
 
   redisClient.on("connect", () => console.log("Connected to Redis!"));
   redisClient.on("error", (err: Error) =>
     console.log("Redis Client Error", err)
   );
-  // redisClient.connect();
+
   app.use(
     cors({
       origin: "http://localhost:3000",
@@ -60,7 +60,7 @@ const main = async () => {
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ em: orm.em, req, res }),
+    context: ({ req, res }) => ({ em: orm.em, req, res, redisClient }),
   });
 
   apolloServer.applyMiddleware({
