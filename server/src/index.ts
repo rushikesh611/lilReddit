@@ -29,6 +29,7 @@ const main = async () => {
   });
 
   //await orm.em.nativeDelete(User, {});
+  // await Post.delete({});
 
   const app = express();
 
