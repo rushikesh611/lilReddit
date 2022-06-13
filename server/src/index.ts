@@ -35,7 +35,7 @@ const main = async () => {
 
   const RedisStore = connectRedis(session);
 
-  const redisClient = new Redis("redis://default:redispw@localhost:49153");
+  const redisClient = new Redis("redis://default:redispw@localhost:49154");
 
   redisClient.on("connect", () => console.log("Connected to Redis!"));
   redisClient.on("error", (err: Error) =>
