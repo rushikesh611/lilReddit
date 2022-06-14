@@ -13,3 +13,5 @@ Includes the following technologies:
 - Next.js
 - TypeGraphQL
 - Chakra
+
+Mock Data: [mockaroo](https://www.mockaroo.com/)
