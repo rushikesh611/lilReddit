@@ -14,6 +14,8 @@ import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 
+import path from "path";
+
 // import { sendEmail } from "./utils/sendEmail";
 // import { User } from "./entities/User";
 
@@ -25,9 +27,11 @@ const main = async () => {
     password: "0611",
     logging: true,
     synchronize: true,
+    migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User],
   });
 
+  await conn.runMigrations();
   //await orm.em.nativeDelete(User, {});
   // await Post.delete({});
 
