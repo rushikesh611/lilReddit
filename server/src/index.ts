@@ -15,6 +15,7 @@ import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 
 import path from "path";
+import { Updoot } from "./entities/Updoot";
 
 // import { sendEmail } from "./utils/sendEmail";
 // import { User } from "./entities/User";
@@ -28,7 +29,7 @@ const main = async () => {
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
-    entities: [Post, User],
+    entities: [Post, User, Updoot],
   });
 
   await conn.runMigrations();
