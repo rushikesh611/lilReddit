@@ -14,6 +14,7 @@ import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
 
+import "dotenv-safe/config";
 import path from "path";
 import { Updoot } from "./entities/Updoot";
 import { createUserLoader } from "./utils/createUserLoader";
@@ -25,11 +26,9 @@ import { createUpdootLoader } from "./utils/createUpdootLoader";
 const main = async () => {
   const conn = await createConnection({
     type: "postgres",
-    database: "lilReddit2",
-    username: "postgres",
-    password: "0611",
+    url: process.env.DATABASE_URL,
     logging: true,
-    synchronize: true,
+    // synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [Post, User, Updoot],
   });
@@ -42,16 +41,16 @@ const main = async () => {
 
   const RedisStore = connectRedis(session);
 
-  const redisClient = new Redis("redis://default:redispw@localhost:49153");
+  const redisClient = new Redis(process.env.REDIS_URL);
 
   redisClient.on("connect", () => console.log("Connected to Redis!"));
   redisClient.on("error", (err: Error) =>
     console.log("Redis Client Error", err)
   );
-
+  app.set("proxy", 1);
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: process.env.CORS_ORIGIN,
       credentials: true,
     })
   );
@@ -65,9 +64,10 @@ const main = async () => {
         httpOnly: true,
         secure: __prod__, // only set cookie on https
         sameSite: "lax", // can be used in cross-origin requests
+        // domain: __prod__ ? "lilReddit" : undefined,
       },
       saveUninitialized: false,
-      secret: "adohiondabpoqwqwyih",
+      secret: process.env.SESSION_SECRET,
       resave: false,
     })
   );
@@ -91,7 +91,7 @@ const main = async () => {
     cors: false,
   });
 
-  app.listen(4000, () => {
+  app.listen(parseInt(process.env.PORT), () => {
     console.log("Server started on localhost:4000");
   });
 };
